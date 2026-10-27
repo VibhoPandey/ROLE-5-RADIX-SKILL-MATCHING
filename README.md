@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # RADIX Talent Match — Role 5: Skill Matching Engine
 
 A production-grade, deterministic, and explainable Skill Matching REST API built with **FastAPI**, **Pydantic v2**, and **Python 3**.
@@ -243,3 +244,7 @@ Invoke-RestMethod -Uri "http://127.0.0.1:8000/api/v1/skill-match" `
   -InFile "sample_data\conceptual_request_sample.json" | ConvertTo-Json -Depth 5
 ```
 
+=======
+# ROLE-5-RADIX-SKILL-MATCHING
+RADIX Talent Match Hackathon — Role 5: Skill Matching API built with Python and FastAPI.
+>>>>>>> origin/main
