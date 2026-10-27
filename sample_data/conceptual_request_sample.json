@@ -1,0 +1,21 @@
+{
+  "candidate_profile": {
+    "candidate_id": "CAND501",
+    "skills": [
+      {"name": "Python"},
+      {"name": "SQL"},
+      {"name": "Git"}
+    ]
+  },
+  "job_requirements": {
+    "job_id": "JOB101",
+    "job_title": "Backend Developer",
+    "required_skills": [
+      {"name": "Python"},
+      {"name": "SQL"},
+      {"name": "REST APIs"},
+      {"name": "Git"}
+    ]
+  }
+}
+

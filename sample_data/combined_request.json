@@ -1,0 +1,142 @@
+{
+  "job_requirements": {
+    "file": "Oracle - Application Support Analyst.pdf",
+    "company": "Oracle Financial Services Software",
+    "role": "Application Support Analyst",
+    "total_skills": 6,
+    "output_file": "oracle_-_application_support_analyst.json",
+    "category_breakdown": {
+      "SQL": 1,
+      "OS": 1,
+      "NETW": 1,
+      "APTI": 1,
+      "COMM": 1,
+      "SWE": 1
+    },
+    "skills": [
+      {
+        "skill_name": "SQL",
+        "category_code": "SQL",
+        "importance": "required",
+        "weight": 1.0
+      },
+      {
+        "skill_name": "Linux",
+        "category_code": "OS",
+        "importance": "required",
+        "weight": 1.0
+      },
+      {
+        "skill_name": "Networking fundamentals",
+        "category_code": "NETW",
+        "importance": "required",
+        "weight": 1.0
+      },
+      {
+        "skill_name": "Aptitude and Problem Solving",
+        "category_code": "APTI",
+        "importance": "required",
+        "weight": 1.0
+      },
+      {
+        "skill_name": "Communication",
+        "category_code": "COMM",
+        "importance": "required",
+        "weight": 1.0
+      },
+      {
+        "skill_name": "Software Engineering",
+        "category_code": "SWE",
+        "importance": "preferred",
+        "weight": 1.0
+      }
+    ]
+  },
+  "candidate_profile": {
+    "schema_version": "1.0",
+    "source_type": "resume",
+    "source_file": "Priya_Menon.pdf",
+    "company": null,
+    "role": null,
+    "skills": [
+      {
+        "skill_name": "SQL",
+        "category_code": "SQL",
+        "evidence": "SQL (basic), Java, Linux basics, Networking fundamentals",
+        "confidence": "high",
+        "evidence_verified": true,
+        "source_section": "technical_skills"
+      },
+      {
+        "skill_name": "Java",
+        "category_code": "COD",
+        "evidence": "SQL (basic), Java, Linux basics, Networking fundamentals",
+        "confidence": "high",
+        "evidence_verified": true,
+        "source_section": "technical_skills"
+      },
+      {
+        "skill_name": "Linux",
+        "category_code": "OS",
+        "evidence": "SQL (basic), Java, Linux basics, Networking fundamentals",
+        "confidence": "high",
+        "evidence_verified": true,
+        "source_section": "technical_skills"
+      },
+      {
+        "skill_name": "Computer Networks",
+        "category_code": "NETW",
+        "evidence": "Networking fundamentals, MS Excel, exposure to ticketing tools",
+        "confidence": "high",
+        "evidence_verified": true,
+        "source_section": "technical_skills"
+      },
+      {
+        "skill_name": "Excel",
+        "category_code": "OTHER",
+        "evidence": "Networking fundamentals, MS Excel, exposure to ticketing tools",
+        "confidence": "high",
+        "evidence_verified": true,
+        "source_section": "technical_skills"
+      },
+      {
+        "skill_name": "Ticketing Tools",
+        "category_code": "OTHER",
+        "evidence": "exposure to ticketing tools",
+        "confidence": "high",
+        "evidence_verified": true,
+        "source_section": "technical_skills"
+      },
+      {
+        "skill_name": "MySQL",
+        "category_code": "SQL",
+        "evidence": "Built a simple student attendance tracker using Java and a MySQL backend for a college project",
+        "confidence": "medium",
+        "evidence_verified": true,
+        "source_section": "projects"
+      },
+      {
+        "skill_name": "Troubleshooting and Escalations",
+        "category_code": "OTHER",
+        "evidence": "handled first-level troubleshooting and escalations",
+        "confidence": "medium",
+        "evidence_verified": true,
+        "source_section": "internships"
+      },
+      {
+        "skill_name": "Coordination",
+        "category_code": "COMM",
+        "evidence": "Volunteer coordinator for a college technical fest, coordinating logistics across teams",
+        "confidence": "low",
+        "evidence_verified": true,
+        "source_section": "achievements"
+      }
+    ],
+    "profile_prefill": {
+      "name": "Priya Menon",
+      "email": null,
+      "education": "B.Tech, Information Technology, Class of 2026 — CGPA 7.4 / 10",
+      "cv_file": "Priya_Menon.pdf"
+    }
+  }
+}

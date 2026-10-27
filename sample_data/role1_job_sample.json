@@ -1,0 +1,54 @@
+{
+  "file": "Oracle - Application Support Analyst.pdf",
+  "company": "Oracle Financial Services Software",
+  "role": "Application Support Analyst",
+  "total_skills": 6,
+  "output_file": "oracle_-_application_support_analyst.json",
+  "category_breakdown": {
+    "SQL": 1,
+    "OS": 1,
+    "NETW": 1,
+    "APTI": 1,
+    "COMM": 1,
+    "SWE": 1
+  },
+  "skills": [
+    {
+      "skill_name": "SQL",
+      "category_code": "SQL",
+      "importance": "required",
+      "weight": 1.0
+    },
+    {
+      "skill_name": "Linux",
+      "category_code": "OS",
+      "importance": "required",
+      "weight": 1.0
+    },
+    {
+      "skill_name": "Networking fundamentals",
+      "category_code": "NETW",
+      "importance": "required",
+      "weight": 1.0
+    },
+    {
+      "skill_name": "Aptitude and Problem Solving",
+      "category_code": "APTI",
+      "importance": "required",
+      "weight": 1.0
+    },
+    {
+      "skill_name": "Communication",
+      "category_code": "COMM",
+      "importance": "required",
+      "weight": 1.0
+    },
+    {
+      "skill_name": "Software Engineering",
+      "category_code": "SWE",
+      "importance": "preferred",
+      "weight": 1.0
+    }
+  ]
+}
+
