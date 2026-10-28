@@ -1,5 +1,6 @@
 from collections import defaultdict
-from typing import Dict, List, Set
+from pathlib import Path
+from typing import Any, Dict, List, Set, Union
 
 from app.schemas.skill_match import (
     CandidateProfile,
@@ -8,24 +9,35 @@ from app.schemas.skill_match import (
     RequiredSkill,
     SkillDetail,
     SkillMatchResponse,
+    _load_json_data,
 )
 from app.services.normalizer import normalize_skill_name
 from app.services.scorer import calculate_match_score
 
 
 def match_candidate_to_job(
-    candidate_profile: CandidateProfile,
-    job_requirements: JobRequirements,
+    candidate_profile: Union[CandidateProfile, Dict[str, Any], str, Path],
+    job_requirements: Union[JobRequirements, Dict[str, Any], str, Path],
 ) -> SkillMatchResponse:
     """
     Executes the deterministic skill matching pipeline:
-    1. Normalizes and indexes candidate skills.
-    2. Deduplicates required skills.
-    3. Evaluates each required skill against candidate profile.
-    4. Identifies matched, missing/unverified, and additional skills.
-    5. Calculates deterministic match score.
-    6. Builds factual explanations and summary.
+    1. Validates and adapts candidate and job requirements (supports models, dicts, JSON strings, or file paths).
+    2. Normalizes and indexes candidate skills.
+    3. Deduplicates required skills.
+    4. Evaluates each required skill against candidate profile.
+    5. Identifies matched, missing/unverified, and additional skills.
+    6. Calculates deterministic match score.
+    7. Builds factual explanations, category breakdown, and summary.
     """
+    # 0. Ensure inputs are parsed Pydantic models
+    if not isinstance(candidate_profile, CandidateProfile):
+        loaded_cand = _load_json_data(candidate_profile)
+        candidate_profile = CandidateProfile.model_validate(loaded_cand)
+
+    if not isinstance(job_requirements, JobRequirements):
+        loaded_job = _load_json_data(job_requirements)
+        job_requirements = JobRequirements.model_validate(loaded_job)
+
     # 1. Normalize and index candidate skills
     # Map normalized_key -> CandidateSkill
     candidate_skill_map: Dict[str, CandidateSkill] = {}
@@ -149,6 +161,12 @@ def match_candidate_to_job(
     # Format category summary if categories were present
     category_summary_out = dict(category_tracker) if category_tracker else None
 
+    # Resolve source file names if present
+    role1_file = job_requirements.output_file or job_requirements.file
+    role3_file = candidate_profile.source_file
+    if not role3_file and candidate_profile.profile_prefill:
+        role3_file = candidate_profile.profile_prefill.get("cv_file")
+
     return SkillMatchResponse(
         candidate_id=candidate_profile.candidate_id,
         candidate_name=candidate_profile.candidate_name,
@@ -164,5 +182,20 @@ def match_candidate_to_job(
         skill_details=skill_details,
         summary=summary,
         category_summary=category_summary_out,
+        role1_file=role1_file,
+        role3_file=role3_file,
     )
 
+
+def match_role1_and_role3(
+    role1_input: Union[JobRequirements, Dict[str, Any], str, Path],
+    role3_input: Union[CandidateProfile, Dict[str, Any], str, Path],
+) -> SkillMatchResponse:
+    """
+    Direct interface to evaluate Role 1 (JD Analytics) against Role 3 (Candidate Profiling).
+    Accepts Pydantic schemas, raw dictionaries, JSON strings, or file paths.
+    """
+    return match_candidate_to_job(
+        candidate_profile=role3_input,
+        job_requirements=role1_input,
+    )

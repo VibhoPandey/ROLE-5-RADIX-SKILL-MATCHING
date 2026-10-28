@@ -10,7 +10,7 @@ from app.schemas.skill_match import (
     RequiredSkill,
     SkillMatchRequest,
 )
-from app.services.matcher import match_candidate_to_job
+from app.services.matcher import match_candidate_to_job, match_role1_and_role3
 from app.services.normalizer import normalize_skill_name
 from app.services.scorer import calculate_match_score
 
@@ -409,3 +409,146 @@ def test_api_rejects_invalid_weights():
     response = client.post("/api/v1/skill-match", json=payload)
     assert response.status_code == 422
 
+
+
+# ==============================================================================
+# 5. Role 1 & Role 3 Integration Tests
+# ==============================================================================
+
+def test_api_with_role1_jd_analytics_and_role3_candidate_profiling_keys():
+    with open("sample_data/role1_job_sample.json", "r") as f:
+        role1_data = json.load(f)
+    with open("sample_data/role3_candidate_sample.json", "r") as f:
+        role3_data = json.load(f)
+
+    payload = {
+        "role1_jd_analytics": role1_data,
+        "role3_candidate_profiling": role3_data,
+    }
+    response = client.post("/api/v1/skill-match", json=payload)
+    assert response.status_code == 200
+    data = response.json()
+    assert data["candidate_id"] == "Priya Menon"
+    assert data["job_title"] == "Application Support Analyst"
+    assert "SQL" in data["matched_skills"]
+
+
+def test_api_with_role1_and_role3_short_keys():
+    with open("sample_data/role1_job_sample.json", "r") as f:
+        role1_data = json.load(f)
+    with open("sample_data/role3_candidate_sample.json", "r") as f:
+        role3_data = json.load(f)
+
+    payload = {
+        "role1": role1_data,
+        "role3": role3_data,
+    }
+    response = client.post("/api/v1/skill-match", json=payload)
+    assert response.status_code == 200
+    data = response.json()
+    assert data["candidate_id"] == "Priya Menon"
+    assert data["job_title"] == "Application Support Analyst"
+
+
+def test_api_with_file_path_inputs():
+    payload = {
+        "role1_path": "sample_data/role1_job_sample.json",
+        "role3_path": "sample_data/role3_candidate_sample.json",
+    }
+    response = client.post("/api/v1/skill-match", json=payload)
+    assert response.status_code == 200
+    data = response.json()
+    assert data["candidate_id"] == "Priya Menon"
+    assert data["job_title"] == "Application Support Analyst"
+    assert data["match_score"] == 50.0
+
+
+def test_api_alias_endpoint_role1_role3_match():
+    payload = {
+        "role1_path": "sample_data/role1_job_sample.json",
+        "role3_path": "sample_data/role3_candidate_sample.json",
+    }
+    response = client.post("/api/v1/role1-role3-match", json=payload)
+    assert response.status_code == 200
+    data = response.json()
+    assert data["candidate_id"] == "Priya Menon"
+    assert data["job_title"] == "Application Support Analyst"
+
+
+def test_match_role1_and_role3_python_function_with_paths():
+    res = match_role1_and_role3(
+        role1_input="sample_data/role1_job_sample.json",
+        role3_input="sample_data/role3_candidate_sample.json",
+    )
+    assert res.candidate_id == "Priya Menon"
+    assert res.job_title == "Application Support Analyst"
+    assert res.match_score == 50.0
+    assert "SQL" in res.matched_skills
+    assert "Linux" in res.matched_skills
+    assert "Networking fundamentals" in res.matched_skills
+
+
+def test_match_role1_and_role3_python_function_with_dicts():
+    with open("sample_data/role1_job_sample.json", "r") as f:
+        r1 = json.load(f)
+    with open("sample_data/role3_candidate_sample.json", "r") as f:
+        r3 = json.load(f)
+
+    res = match_role1_and_role3(r1, r3)
+    assert res.candidate_id == "Priya Menon"
+    assert res.matched_skills_count == 3
+
+
+def test_match_candidate_to_job_with_raw_dicts():
+    cand_dict = {
+        "candidate_id": "CAND_DICT_1",
+        "skills": [{"name": "Python"}, {"name": "SQL"}],
+    }
+    job_dict = {
+        "job_id": "JOB_DICT_1",
+        "job_title": "Data Analyst",
+        "required_skills": [{"name": "Python"}, {"name": "SQL"}, {"name": "Tableau"}],
+    }
+    res = match_candidate_to_job(cand_dict, job_dict)
+    assert res.candidate_id == "CAND_DICT_1"
+    assert res.matched_skills_count == 2
+    assert res.total_required_skills == 3
+    assert res.match_score == 66.67
+
+
+def test_flexible_schema_variations():
+    # Test handling integer IDs, fullName, and must_have_skills
+    cand_data = {
+        "id": 999,
+        "fullName": "Alex Smith",
+        "skills": ["Python", "FastAPI"],
+    }
+    job_data = {
+        "id": 888,
+        "title": "Backend Engineer",
+        "must_have_skills": ["Python"],
+        "good_to_have_skills": ["FastAPI", "Docker"],
+    }
+    req = SkillMatchRequest.model_validate({"candidate": cand_data, "job": job_data})
+    assert req.candidate_profile.candidate_id == "999"
+    assert req.candidate_profile.candidate_name == "Alex Smith"
+    assert req.job_requirements.job_id == "888"
+    assert req.job_requirements.job_title == "Backend Engineer"
+    assert len(req.job_requirements.required_skills) == 3
+
+
+def test_cli_execution():
+    from app.cli import main
+    import sys
+    orig_argv = sys.argv
+    try:
+        sys.argv = [
+            "cli.py",
+            "--role1", "sample_data/role1_job_sample.json",
+            "--role3", "sample_data/role3_candidate_sample.json",
+            "--summary",
+        ]
+        # Calling main shouldn't raise any unhandled exception
+        main()
+    finally:
+        sys.argv = orig_argv
