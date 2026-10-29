@@ -86,7 +86,7 @@ def match_candidate_to_job(
 
     for req in deduped_requirements:
         req_norm = normalize_skill_name(req.name)
-        category = req.category_code
+        category = req.category_code.strip() if req.category_code and req.category_code.strip() else None
 
         if category:
             category_tracker[category]["required"] += 1
@@ -111,10 +111,12 @@ def match_candidate_to_job(
 
             explanation = " ".join(explanation_parts) + "."
 
+            cand_cat = cand_skill.category_code.strip() if cand_skill.category_code and cand_skill.category_code.strip() else None
+
             skill_details.append(
                 SkillDetail(
                     skill=req.name,
-                    category_code=category or cand_skill.category_code,
+                    category_code=category or cand_cat,
                     status="matched",
                     explanation=explanation,
                     candidate_skill_matched=cand_skill.name,

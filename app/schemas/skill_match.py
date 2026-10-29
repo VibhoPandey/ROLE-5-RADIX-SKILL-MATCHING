@@ -29,14 +29,15 @@ def _load_json_data(val: Any) -> Any:
         except Exception:
             pass
 
-    # Try resolving as file path
-    try:
-        p = Path(val_str)
-        if p.exists() and p.is_file():
-            with open(p, "r", encoding="utf-8") as f:
-                return json.load(f)
-    except Exception:
-        pass
+    # Try resolving as file path (only if it looks plausible as a path)
+    if len(val_str) < 1024 and "\x00" not in val_str and "\n" not in val_str and "\r" not in val_str:
+        try:
+            p = Path(val_str)
+            if p.exists() and p.is_file():
+                with open(p, "r", encoding="utf-8") as f:
+                    return json.load(f)
+        except Exception:
+            pass
 
     return val
 
@@ -59,12 +60,23 @@ class CandidateSkill(BaseModel):
             raise ValueError("Skill name cannot be empty")
         return cleaned
 
+    @field_validator("category_code", mode="before")
+    @classmethod
+    def validate_category_code(cls, value: Any) -> Optional[str]:
+        if value is None:
+            return None
+        cleaned = str(value).strip()
+        return cleaned if cleaned else None
+
     @field_validator("confidence", mode="before")
     @classmethod
     def validate_confidence(cls, value: Any) -> Optional[str]:
         if value is None:
             return None
         if isinstance(value, (int, float)):
+            import math
+            if math.isnan(value) or math.isinf(value):
+                return None
             score = float(value)
             if score > 1.0:
                 score = score / 100.0
@@ -275,6 +287,14 @@ class RequiredSkill(BaseModel):
             raise ValueError("Required skill name cannot be empty")
         return cleaned
 
+    @field_validator("category_code", mode="before")
+    @classmethod
+    def validate_category_code(cls, value: Any) -> Optional[str]:
+        if value is None:
+            return None
+        cleaned = str(value).strip()
+        return cleaned if cleaned else None
+
     @field_validator("weight", mode="before")
     @classmethod
     def validate_weight(cls, value: Any) -> float:
@@ -284,6 +304,9 @@ class RequiredSkill(BaseModel):
             val_float = float(value)
         except (ValueError, TypeError):
             raise ValueError(f"Invalid weight: {value}")
+        import math
+        if math.isnan(val_float) or math.isinf(val_float):
+            raise ValueError("Weight must be a finite number (NaN and Infinity are not permitted)")
         if val_float < 0:
             raise ValueError(f"Weight cannot be negative: {val_float}")
         return val_float

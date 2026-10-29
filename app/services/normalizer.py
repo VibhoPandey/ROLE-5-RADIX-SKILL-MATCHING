@@ -14,13 +14,22 @@ KNOWN_ALIASES: Dict[str, str] = {
     "node": "node.js",
     "nodejs": "node.js",
     "node.js": "node.js",
+    "vue": "vue.js",
+    "vuejs": "vue.js",
+    "vue.js": "vue.js",
+    "angular": "angular",
+    "angularjs": "angular",
+    "angular.js": "angular",
 
     # Python
     "py": "python",
     "python": "python",
     "python3": "python",
+    "python 3": "python",
+    "py3": "python",
 
     # Languages
+    "c": "c",
     "cpp": "c++",
     "c++": "c++",
     "c/c++": "c++",
@@ -38,6 +47,8 @@ KNOWN_ALIASES: Dict[str, str] = {
     # Databases
     "postgres": "postgresql",
     "postgresql": "postgresql",
+    "postgre sql": "postgresql",
+    "postgres sql": "postgresql",
     "psql": "postgresql",
     "mysql": "mysql",
     "sql": "sql",
@@ -124,7 +135,7 @@ def normalize_skill_name(name: str) -> str:
     4. Remove parenthetical descriptions (e.g. 'SQL (basic)' -> 'sql').
     5. Resolve known aliases via KNOWN_ALIASES.
 
-    Does NOT equate distinct skills (e.g., Java != JavaScript, Git != GitHub).
+    Does NOT equate distinct skills (e.g., Java != JavaScript, Git != GitHub, C != C++).
     """
     if not name or not isinstance(name, str):
         return ""
@@ -142,5 +153,9 @@ def normalize_skill_name(name: str) -> str:
     without_parens = re.sub(r"\s+", " ", without_parens)
     if without_parens in KNOWN_ALIASES:
         return KNOWN_ALIASES[without_parens]
+
+    # If the string was purely parenthetical (e.g. "(basic)"), return empty string
+    if re.match(r"^\([^)]*\)$", raw):
+        return ""
 
     return without_parens if without_parens else raw
