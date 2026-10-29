@@ -320,7 +320,36 @@ uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 
 ---
 
-## 9. Verification with cURL / PowerShell
+## 9. Deploy and integrate with the portal
+
+The service is ready for platforms that provide a `PORT` environment variable
+(for example Render or Railway). The included `Procfile` starts the API on
+`0.0.0.0:$PORT`; use this start command if your host asks for one:
+
+```text
+uvicorn app.main:app --host 0.0.0.0 --port $PORT
+```
+
+Once deployed, configure the portal to `POST` its Role 1 and Role 3 outputs to
+`https://<your-role5-host>/api/v1/skill-match` with the
+`Content-Type: application/json` header. The request body is simply:
+
+```json
+{
+  "role1": { "...": "Role 1 JD Analytics output" },
+  "role3": { "...": "Role 3 Candidate Profiling output" }
+}
+```
+
+Use `GET /health` (or `GET /api/v1/health`) for the deployment health check.
+Cross-origin JSON requests are enabled by default so the three independently
+hosted roles can communicate. In production, set `ALLOWED_ORIGINS` to a
+comma-separated allowlist, for example
+`https://your-portal.example,https://your-role1.example`.
+
+---
+
+## 10. Verification with cURL / PowerShell
 
 ```powershell
 # Test with Role 1 & Role 3 sample

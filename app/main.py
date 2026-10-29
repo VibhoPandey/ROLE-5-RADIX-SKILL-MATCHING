@@ -1,7 +1,10 @@
+import os
+
 import uvicorn
 from fastapi import FastAPI, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+from starlette.middleware.cors import CORSMiddleware
 
 from app.api.skill_match import router as skill_match_router
 
@@ -15,6 +18,22 @@ app = FastAPI(
     version="1.0.0",
     docs_url="/docs",
     redoc_url="/redoc",
+)
+
+# Role 1, Role 3, and the candidate portal are separate browser clients in
+# development.  Permit their cross-origin JSON requests by default, while
+# allowing a deployment to restrict this with ALLOWED_ORIGINS.
+allowed_origins = [
+    origin.strip()
+    for origin in os.getenv("ALLOWED_ORIGINS", "*").split(",")
+    if origin.strip()
+]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=allowed_origins or ["*"],
+    allow_credentials=False,
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["*"],
 )
 
 # Register routers
@@ -54,6 +73,17 @@ def health_check():
     }
 
 
+@app.get(
+    "/api/v1/health",
+    tags=["System"],
+    summary="API Health Check",
+    include_in_schema=False,
+)
+def api_health_check():
+    """Compatibility health route for API gateways that probe under /api/v1."""
+    return health_check()
+
+
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
     """
@@ -78,7 +108,8 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 if __name__ == "__main__":
     uvicorn.run(
         "app.main:app",
-        host="127.0.0.1",
-        port=8000,
-        reload=True,
+        # Cloud hosts inject PORT and require the process to listen publicly.
+        host=os.getenv("HOST", "0.0.0.0"),
+        port=int(os.getenv("PORT", "8000")),
+        reload=os.getenv("ENVIRONMENT", "").lower() == "development",
     )

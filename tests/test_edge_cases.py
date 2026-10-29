@@ -1200,6 +1200,22 @@ class TestCategoryHApiHttpBehavior:
         assert data["status"] == "healthy"
         assert data["service"] == "radix-role5"
 
+    def test_h6b_api_health_compatibility_endpoint(self):
+        resp = client.get("/api/v1/health")
+        assert resp.status_code == 200
+        assert resp.json()["status"] == "healthy"
+
+    def test_h6c_browser_preflight_is_allowed(self):
+        resp = client.options(
+            "/api/v1/skill-match",
+            headers={
+                "Origin": "https://candidate-portal.example",
+                "Access-Control-Request-Method": "POST",
+            },
+        )
+        assert resp.status_code == 200
+        assert resp.headers["access-control-allow-origin"] == "*"
+
     def test_h7_root_endpoint(self):
         resp = client.get("/")
         assert resp.status_code == 200
